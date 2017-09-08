@@ -17,6 +17,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Base64;
 import android.webkit.MimeTypeMap;
+import android.util.Log;
 
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Callback;
@@ -336,6 +337,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @ReactMethod
     public void openPicker(final ReadableMap options, final Promise promise) {
+        Log.d("VFMPM", "openPicker");
+
         final Activity activity = getCurrentActivity();
 
         if (activity == null) {
@@ -409,16 +412,23 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private WritableMap getSelection(Activity activity, Uri uri, boolean isCamera) throws Exception {
+        Log.d("VFMPM", "uri - " + uri.toString());
+
         String path = resolveRealPath(activity, uri, isCamera);
+        Log.d("VFMPM", "path - " + path);
+
         if (path == null || path.isEmpty()) {
             throw new Exception("Cannot resolve asset path.");
         }
+
 
         return getImage(activity, path);
     }
 
     private void getAsyncSelection(final Activity activity, Uri uri, boolean isCamera) throws Exception {
+        Log.d("VFMPM", "ASYNC uri - " + uri.toString());
         String path = resolveRealPath(activity, uri, isCamera);
+        Log.d("VFMPM", "async path - " + path);
         if (path == null || path.isEmpty()) {
             resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot resolve asset path.");
             return;
@@ -426,11 +436,25 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         String mime = getMimeType(path);
         if (mime != null && mime.startsWith("video/")) {
-            getVideo(activity, path, mime);
+
+            WritableMap video = new WritableNativeMap();
+            video.putString("id", uri.toString());
+            video.putString("path", "file://" + path);
+            Log.d("VFMPM", "file path " +  path);
+            resultCollector.notifySuccess(video);
+
+//            getVideo(activity, path, mime);
             return;
         }
 
-        resultCollector.notifySuccess(getImage(activity, path));
+        WritableMap image = new WritableNativeMap();
+        image.putString("id", uri.toString());
+        image.putString("path", "file://" + path);
+        Log.d("VFMPM", "file path " +  path);
+        resultCollector.notifySuccess(image);
+
+
+//        resultCollector.notifySuccess(getImage(activity, path));
     }
 
     private Bitmap validateVideo(String path) throws Exception {
@@ -467,6 +491,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                             video.putInt("size", (int) new File(videoPath).length());
                             video.putString("path", "file://" + videoPath);
 
+                            Log.d("VFMPM", "file path " +  path);
+
                             resultCollector.notifySuccess(video);
                         } catch (Exception e) {
                             resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, e);
@@ -496,6 +522,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 path = RealPathUtil.getRealPathFromURI(activity, uri);
             }
         }
+
+        Log.d("VFMPM", "resolveRealPath path " +  path);
 
         return path;
     }
@@ -608,6 +636,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
             } else {
                 Uri uri = data.getData();
+
+                Log.d("VFMPM", "imagePickerResult uri " +  uri.toString());
+
 
                 if (uri == null) {
                     resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot resolve image url");

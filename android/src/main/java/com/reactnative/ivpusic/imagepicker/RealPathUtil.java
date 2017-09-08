@@ -10,11 +10,16 @@ import android.content.ContentUris;
 import android.os.Environment;
 import android.support.annotation.RequiresApi;
 import java.io.File;
+import java.util.Arrays;
+
+import android.util.Log;
 
 public class RealPathUtil {
   public static String getRealPathFromURI(final Context context, final Uri uri) {
 
       final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+
+      Log.d("VFMPM", "getRealPathFromURI " + uri.toString());
 
       // DocumentProvider
       if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
@@ -53,6 +58,10 @@ public class RealPathUtil {
           }
           // MediaProvider
           else if (isMediaDocument(uri)) {
+
+
+              Log.d("VFMPM", "isMediaDocument");
+
               final String docId = DocumentsContract.getDocumentId(uri);
               final String[] split = docId.split(":");
               final String type = split[0];
@@ -66,10 +75,15 @@ public class RealPathUtil {
                   contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
               }
 
+              Log.d("VFMPM", "contentUri " + contentUri);
+
               final String selection = "_id=?";
               final String[] selectionArgs = new String[] {
                       split[1]
               };
+
+              Log.d("VFMPM", "selection " + selection);
+              Log.d("VFMPM", "selectionArgs " +  Arrays.toString(selectionArgs));
 
               return getDataColumn(context, contentUri, selection, selectionArgs);
           }

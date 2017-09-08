@@ -39,18 +39,22 @@ public class ResultCollector {
 
     public synchronized void notifySuccess(WritableMap result) {
         if (resultSent) {
+            Log.d("VFMPM", "skipping");
             Log.w("image-crop-picker", "Skipping result, already sent...");
         }
 
         if (multiple) {
+            Log.d("VFMPM", "multiple");
             arrayResult.pushMap(result);
             int currentCount = waitCounter.addAndGet(1);
 
             if (currentCount == waitCount) {
+                Log.d("VFMPM", "resolving and setting sent");
                 promise.resolve(arrayResult);
                 resultSent = true;
             }
         } else {
+            Log.d("VFMPM", "resolving and setting sent (2)");
             promise.resolve(result);
             resultSent = true;
         }
