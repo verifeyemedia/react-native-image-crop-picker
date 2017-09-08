@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Base64;
@@ -437,24 +438,23 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         String mime = getMimeType(path);
         if (mime != null && mime.startsWith("video/")) {
 
-            WritableMap video = new WritableNativeMap();
-            video.putString("id", uri.toString());
-            video.putString("path", "file://" + path);
-            Log.d("VFMPM", "file path " +  path);
+            WritableMap video = getIds(uri, path);
             resultCollector.notifySuccess(video);
-
-//            getVideo(activity, path, mime);
             return;
         }
 
-        WritableMap image = new WritableNativeMap();
-        image.putString("id", uri.toString());
-        image.putString("path", "file://" + path);
-        Log.d("VFMPM", "file path " +  path);
+        WritableMap image = getIds(uri, path);
         resultCollector.notifySuccess(image);
+    }
 
-
-//        resultCollector.notifySuccess(getImage(activity, path));
+    @NonNull
+    private WritableMap getIds(Uri uri, String path)
+    {
+        WritableMap ret = new WritableNativeMap();
+        ret.putString("id", uri.toString());
+        ret.putString("path", "file://" + path);
+        Log.d("VFMPM", "file path " +  path);
+        return ret;
     }
 
     private Bitmap validateVideo(String path) throws Exception {
