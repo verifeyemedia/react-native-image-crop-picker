@@ -434,17 +434,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot resolve asset path.");
             return;
         }
-
-        String mime = getMimeType(path);
-        if (mime != null && mime.startsWith("video/")) {
-
-            WritableMap video = getIds(uri, path);
-            resultCollector.notifySuccess(video);
-            return;
-        }
-
-        WritableMap image = getIds(uri, path);
-        resultCollector.notifySuccess(image);
+        WritableMap ids = getIds(uri, path);
+        resultCollector.notifySuccess(ids);
     }
 
     @NonNull
